@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gutachten-Assistent</title>
+<script>try{const t=localStorage.getItem('gaDesign');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#1d2733;--mut:#667385;--line:#e1e6ed;--acc:#2f5d8a;--acc2:#e8f0f8;--warn:#fff6e0;--warnl:#f0d58a;--ok:#2e7d4f;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161b22;--card:#1e252e;--ink:#e6ebf1;--mut:#98a4b3;--line:#2d3743;--acc:#6aa4dc;--acc2:#24323f;--warn:#3a3220;--warnl:#6b5a2a;--ok:#5cc489;--bad:#f08a84;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#161b22;--card:#1e252e;--ink:#e6ebf1;--mut:#98a4b3;--line:#2d3743;--acc:#6aa4dc;--acc2:#24323f;--warn:#3a3220;--warnl:#6b5a2a;--ok:#5cc489;--bad:#f08a84;color-scheme:dark}
+:root[data-theme=light]{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;background:var(--card);border-bottom:1px solid var(--line)}
+header h1{font-size:18px;margin:0;font-weight:650}header h1 small{font-weight:400;color:var(--mut);margin-left:8px;font-size:13px}
+.wrap{flex:1;display:flex;min-height:0}
+aside{width:290px;background:var(--card);border-right:1px solid var(--line);padding:16px;overflow:auto;display:flex;flex-direction:column}
+aside .search{width:100%;margin:8px 0 12px}#liste{flex:1}
+.fall{padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;border:1px solid transparent}
+.fall:hover{background:var(--acc2)}.fall.on{background:var(--acc2);border-color:var(--acc)}
+.fall b{display:block;font-weight:600}.fall span{font-size:13px;color:var(--mut)}
+main{flex:1;overflow:auto;padding:22px 26px 14px}
+.leer{margin:70px auto;text-align:center;color:var(--mut);max-width:460px}
+h2{margin:0 0 2px;font-size:22px}.sub{color:var(--mut);margin-bottom:18px}
+.chip{display:inline-block;background:var(--acc2);color:var(--acc);border-radius:20px;padding:1px 10px;font-size:12.5px;margin-right:6px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;max-width:920px}
+.card h3{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:10px}
+.num{background:var(--acc);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.card p{margin:2px 0 10px;color:var(--mut);font-size:14px}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:9px;cursor:pointer}
+button:hover{border-color:var(--acc)}button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+button.pri:hover{filter:brightness(1.08)}button:disabled{opacity:.5;cursor:wait}
+button.link{border:none;background:none;color:var(--acc);padding:2px 4px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 9px;width:100%}
+input:focus,select:focus{outline:2px solid var(--acc2);border-color:var(--acc)}
+.row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.row>*{flex:1}.row .s{flex:0 0 130px}.row .xs{flex:0 0 36px;padding:6px}.row .m{flex:0 0 90px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}.grid .full{grid-column:1/3}
+label.l{display:block;font-size:12.5px;color:var(--mut);margin-bottom:2px}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;align-items:center}
+.file{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:2px 4px 2px 10px;font-size:13px;display:inline-flex;align-items:center;gap:2px}
+.warn{background:var(--warn);border:1px solid var(--warnl);border-radius:10px;padding:8px 12px;font-size:13.5px;margin:8px 0}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+table.t{width:100%;border-collapse:collapse;font-size:14px}table.t td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:middle}
+.steps{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}.steps span{font-size:12.5px;padding:3px 10px;border-radius:20px;background:var(--bg);border:1px solid var(--line);color:var(--mut)}
+.steps span.on{background:var(--acc);color:#fff;border-color:var(--acc)}.steps span.done{color:var(--ok)}
+.nav{display:flex;justify-content:space-between;margin-top:14px;max-width:920px}
+#log{border-top:1px solid var(--line);background:var(--card);padding:8px 22px 10px}
+#logh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut)}
+#logt{margin:6px 0 0;max-height:150px;overflow:auto;white-space:pre-wrap;font:12.5px/1.45 ui-monospace,Consolas,monospace;background:var(--bg);border-radius:8px;padding:8px 10px;min-height:40px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--acc2);border-top-color:var(--acc);border-radius:50%;animation:s .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+.modal{position:fixed;inset:0;background:rgba(10,20,30,.45);display:none;align-items:center;justify-content:center;z-index:5}
+.modal.on{display:flex}.box{background:var(--card);border-radius:16px;padding:22px;width:520px;max-width:92vw}
+.box h3{margin:0 0 12px}.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+#toast{position:fixed;bottom:200px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;display:none;z-index:9;max-width:80vw}
+.mods label{display:block;font-size:14px;margin:2px 0}.mods input{width:auto;margin-right:6px}
+details summary{cursor:pointer;color:var(--acc);margin:6px 0}
+textarea{resize:vertical}
+textarea.prompt{font:12.5px/1.45 ui-monospace,Consolas,monospace;min-height:240px}
+.ex{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--bg)}
+.seg{display:flex;gap:8px}.seg button{flex:1;padding:9px 14px}.seg button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:650}
+a.b{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:9px;text-decoration:none;display:inline-block}a.b:hover{border-color:var(--acc)}
+code{font-size:12.5px}
+</style>
+</head>
+<body>
+<header><h1>Gutachten-Assistent<small>läuft nur auf diesem Rechner, nichts wird gesendet</small></h1><button onclick="beenden()">Beenden</button></header>
+<div class="wrap">
+<aside id="seite">
+  <button class="pri" style="width:100%" onclick="openNeu()">+ Neuer Fall</button>
+  <input class="search" id="suche" placeholder="Fall suchen ..." oninput="renderListe()">
+  <div id="liste"></div>
+  <button style="margin-top:10px" onclick="zeigeEinstellungen()">⚙ Einstellungen</button>
+</aside>
+<main id="main"></main>
+</div>
+<div id="log"><div id="logh"><span id="logs">Protokoll</span><button class="link" onclick="document.getElementById('logt').textContent=''">leeren</button></div><div id="logt"></div></div>
+<div id="toast"></div>
+
+<div class="modal" id="mNeu"><div class="box">
+<h3>Neuen Fall anlegen</h3>
+<div class="grid">
+<div><label class="l">Aktenzeichen</label><input id="nAz" placeholder="z. B. XVII 123/45"></div>
+<div><label class="l">Amtsgericht (Ort)</label><input id="nGericht" placeholder="z. B. Dachau"></div>
+<div><label class="l">Beschluss vom</label><input id="nBes" placeholder="TT.MM.JJJJ"></div>
+<div><label class="l">Untersuchungsdatum</label><input id="nUnt" placeholder="TT.MM.JJJJ"></div>
+<div><label class="l">Datum der Gutachtenerstattung (steht bei der Unterschrift)</label><input id="nGut" placeholder="TT.MM.JJJJ"></div>
+<div><label class="l">Honorargruppe</label><select id="nGr"><option>M3</option><option>M2</option></select></div>
+</div>
+<div class="acts"><button onclick="schliesse('mNeu')">Abbrechen</button><button class="pri" onclick="neuAnlegen()">Anlegen</button></div>
+</div></div>
+
+<script>
+const T=new URLSearchParams(location.search).get('t');
+let faelle=[],cur=null,D=null,ST=null,S=null,K=null,V=null,BES={},pos=[],wz=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(p,body){
+  const r=await fetch(p,{method:body?'POST':'GET',headers:{'X-Token':T,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  const j=await r.json(); if(!r.ok) throw new Error(j.fehler||'Fehler'); return j;
+}
+function toast(t,ms=4000){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',ms)}
+function schliesse(id){$(id).classList.remove('on')}
+function openNeu(){if(!ST.konfiguriert){toast('Bitte zuerst die Einrichtung abschließen.');return}['nAz','nGericht','nBes','nUnt','nGut'].forEach(i=>$(i).value='');$('mNeu').classList.add('on');$('nAz').focus()}
+
+/* ---------- Start ---------- */
+async function init(){
+  ST=await api('/api/start');
+  if(!ST.konfiguriert){$('seite').style.display='none';await wizard(0);return}
+  await ladeListe();willkommen();
+}
+function willkommen(){cur=null;renderListe();$('main').innerHTML=`<div class="leer"><h2>Willkommen</h2><p>Wähle links einen Fall oder lege einen neuen an.</p></div>`}
+async function ladeListe(sel){faelle=await api('/api/faelle');renderListe();if(sel)waehle(sel)}
+function renderListe(){
+  const q=$('suche').value.toLowerCase();
+  $('liste').innerHTML=faelle.filter(f=>(f.az+f.gericht).toLowerCase().includes(q)).map(f=>
+    `<div class="fall ${cur===f.id?'on':''}" onclick="waehle('${esc(f.id)}')"><b>${esc(f.az)}</b><span>AG ${esc(f.gericht)} · ${esc(f.gruppe)}</span></div>`).join('')||'<p style="color:var(--mut)">Noch keine Fälle.</p>';
+}
+
+/* ---------- Einstellungen / Einrichtung ---------- */
+const FELDER=['ki_prompt_zusatz','gutachter_name','gutachter_titel','fachgebiet','gutachten_titel','strasse','plz_ort','ort','kontoinhaber','iban','bic','bank','km_satz','schreibgebuehr_pro_einheit','anschlaege_pro_einheit'];
+async function ladeEinst(){const j=await api('/api/einstellungen');S=j.einstellungen;if(S.design)wendeDesignAn(S.design);V=j.vorlagen;BES=j.beschreibung;return j}
+const f_=(id,label,ph='',full=false)=>`<div class="${full?'full':''}"><label class="l">${label}</label><input id="s_${id}" value="${esc(S[id])}" placeholder="${esc(ph)}"></div>`;
+const SEC={
+ ordner:()=>`<div class="card"><h3>Arbeitsordner</h3><p>Hier werden alle Fälle gespeichert. Jeder Ordner funktioniert. Liegt er in OneDrive, Google Drive oder Dropbox, werden deine Dateien automatisch auf deine anderen Geräte übertragen; sonst bleiben sie nur auf diesem Computer. Auf jedem Computer muss der Ordner einmal hier ausgewählt werden.</p>
+  <label class="l">Ordner (Pfad)</label><input id="s_ordner" value="${esc(ST.arbeitsordner||(ST.kandidaten[0]?.pfad||''))}" placeholder="z. B. C:\\Users\\Name\\OneDrive\\Gutachten">
+  <div class="files">${ST.kandidaten.map((k,i)=>`<button onclick="$('s_ordner').value=ST.kandidaten[${i}].pfad">${esc(k.label)}</button>`).join('')}</div>
+  <p style="margin-top:4px">Der Ordner wird angelegt, falls er noch nicht existiert.</p></div>`,
+ gutachter:()=>`<div class="card"><h3>Gutachter</h3><p>Diese Angaben erscheinen in Kopf und Unterschrift von Gutachten und Rechnung.</p><div class="grid">
+  ${f_('gutachter_name','Name (mit Titel)','z. B. Dr. med. Erika Beispiel')}${f_('gutachter_titel','Qualifikation','z. B. Fachärztin für Psychiatrie und Psychotherapie')}
+  ${f_('strasse','Straße und Hausnummer')}${f_('plz_ort','PLZ und Ort','z. B. 80331 München')}
+  ${f_('fachgebiet','Fachgebiet','z. B. Psychiatrie')}${f_('gutachten_titel','Titel des Gutachtens','z. B. Psychiatrisches Gutachten')}</div></div>`,
+ bank:()=>`<div class="card"><h3>Bankverbindung</h3><p>Für die Rechnung an das Gericht.</p><div class="grid">
+  ${f_('kontoinhaber','Kontoinhaber')}${f_('bank','Bank')}${f_('iban','IBAN')}${f_('bic','BIC')}</div></div>`,
+ honorar:()=>`<div class="card"><h3>Honorar und Sätze</h3><p>Die Voreinstellungen entsprechen dem JVEG, der Stand kann sich ändern. Bitte vor der ersten Rechnung prüfen und bei Bedarf anpassen.</p><div class="grid">
+  <div><label class="l">Stundensatz M 2 (EUR)</label><input id="s_m2" value="${esc(S.honorar_pro_stunde.M2)}"></div><div><label class="l">Stundensatz M 3 (EUR)</label><input id="s_m3" value="${esc(S.honorar_pro_stunde.M3)}"></div>
+  ${f_('km_satz','Kilometergeld je km (EUR)')}${f_('schreibgebuehr_pro_einheit','Schreibgebühr je Einheit (EUR)')}${f_('anschlaege_pro_einheit','Anschläge je Einheit')}</div></div>`,
+ vorlagen:()=>{const bl=(art,titel)=>{const v=V[art]||{},p=v.pruefung;return `<div class="row" style="align-items:flex-start"><div style="flex:0 0 150px"><b>${titel}</b><br><span class="${v.eigene?'ok':''}" style="font-size:13px">${v.eigene?'Eigene Vorlage aktiv':'Standardvorlage'}</span></div>
+   <div><button onclick="oeffneVorlage('${art}')">In Word anpassen</button> <label class="file" style="cursor:pointer">Eigene .docx hochladen<input type="file" accept=".docx" style="display:none" onchange="ladeVorlage('${art}',this)"></label>
+   ${v.eigene?`<button class="link" onclick="resetVorlage('${art}')">Standard wiederherstellen</button>`:''}
+   ${p&&(p.fehlt.length||p.unbekannt.length)?`<div class="warn">${p.fehlt.length?`<b>Fehlt in der Vorlage:</b> ${p.fehlt.map(k=>'{{'+k+'}}').join(', ')}<br>`:''}${p.unbekannt.length?`<b>Unbekannte Platzhalter:</b> ${p.unbekannt.map(k=>'{{'+k+'}}').join(', ')}`:''}</div>`:(p?'<div class="ok" style="font-size:13px">Vorlage ist vollständig.</div>':'')}</div></div>`};
+  return `<div class="card"><h3>Vorlagen für Gutachten und Rechnung</h3><p>Gelten für alle Fälle. Du kannst die Standardvorlage in Word anpassen (Schrift, Briefkopf, Logo) oder eine eigene Word-Datei hochladen. In Vorlagen stehen Platzhalter wie <code>{{AKTENZEICHEN}}</code>, die das Programm je Fall ausfüllt.</p>
+  ${bl('rechnung','Rechnung')}${bl('gutachten','Gutachten')}
+  <details><summary>Alle Platzhalter anzeigen</summary><table class="t">${Object.entries(BES).map(([k,v])=>`<tr><td><code>{{${esc(k)}}}</code></td><td>${esc(v)}</td></tr>`).join('')}</table>
+  <p>Wichtig: In der Rechnung muss eine Tabellenzeile mit <code>{{POS_TITEL}}</code>, <code>{{POS_TEXT}}</code> und <code>{{POS_STUNDEN}}</code> stehen (wird für jede Leistung wiederholt). Abschnitte, die nur bei Fahrtkosten oder Schreibgebühr erscheinen sollen, stehen zwischen <code>{{#FAHRT}}</code> und <code>{{/FAHRT}}</code> bzw. <code>{{#SCHREIB}}</code> und <code>{{/SCHREIB}}</code>. In der Gutachten-Vorlage markiert <code>{{TEXT}}</code> die Stelle des Gutachten-Textes.</p></details></div>`},
+ bausteine:()=>`<div class="card"><h3>Bausteine</h3><p>Diese Module (Unterüberschriften in Abschnitt IV) stehen beim Erstellen eines Gutachten-Gerüsts zur Auswahl. Du kannst eigene hinzufügen oder Vorschläge entfernen.</p>
+  <div id="modl"></div><div class="row"><input id="modNeu" placeholder="Neues Modul, z. B. Testierfähigkeit"><button class="m" onclick="addModul()">Hinzufügen</button></div></div>
+  <div class="card"><h3>Standard-Leistungen für die Rechnung</h3><p>Diese Positionen erscheinen bei jedem neuen Fall. Die Dauer trägst du je Fall in der Rechnung ein, dort kannst du auch einzelne Leistungen hinzufügen.</p>
+  <div id="leistl"></div><div class="row"><input id="lNeuT" placeholder="Leistung, z. B. Testung"><input id="lNeuX" placeholder="Beschreibung"><button class="m" onclick="addLeist()">Hinzufügen</button></div></div>`,
+ design:()=>`<div class="card"><h3>Darstellung</h3><p>Hell, Dunkel oder automatisch passend zum Betriebssystem. Die Änderung gilt sofort.</p>
+  <div class="seg" id="designSeg" style="max-width:420px">${[['light','Hell'],['dark','Dunkel'],['system','System']].map(([k,t])=>`<button data-d="${k}" class="${(S.design||'system')===k?'on':''}" onclick="setDesign('${k}')">${t}</button>`).join('')}</div></div>`,
+ kitools:()=>`<div class="card"><h3>KI-Dienste für Entwürfe</h3><p>Hier legst du fest, welche KI-Dienste im Schritt „Gutachten-Entwurf“ zur Auswahl stehen. Gespeichert werden nur Name und Webadresse; es wird nichts gesendet, bis du selbst einen Prompt einfügst. Du kannst Einträge jederzeit ändern, abwählen oder ergänzen.</p>
+  <div id="kil"></div><div class="row"><input id="kiNeuN" placeholder="Name, z. B. Mistral"><input id="kiNeuU" placeholder="Webadresse, z. B. https://chat.mistral.ai"><button class="m" onclick="addKi()">Hinzufügen</button></div>
+  <label class="l" style="margin-top:10px">Eigene Hinweise für jeden Prompt (optional)</label><textarea id="s_ki_prompt_zusatz" rows="3" placeholder="z. B. bevorzugter Schreibstil, Gliederungswünsche, Formulierungen, die du magst">${esc(S.ki_prompt_zusatz)}</textarea>
+  <div class="warn"><b>Datenschutz:</b> Der Assistent ersetzt Namen und Kontaktdaten vor dem Hochladen. Ob und wie ein Dienst Eingaben speichert oder zum Training nutzt, hängt von Konto, Tarif und Vertrag ab. Das prüfst du selbst (Berufsgeheimnis, § 203 StGB, DSGVO).</div></div>`,
+ programme:()=>`<div class="card"><h3>Programme</h3><p>Diese Bausteine braucht der Assistent. Fehlendes kannst du hier mit einem Klick installieren.</p><div id="komp">Wird geprüft ...</div></div>`
+};
+function renderMods(){const m=$('modl');if(m)m.innerHTML=S.gutachten_module_IV.map((x,i)=>`<div class="row"><span>${esc(x)}</span><button class="xs" onclick="S.gutachten_module_IV.splice(${i},1);renderMods()">✕</button></div>`).join('');
+  const kk=$('kil');if(kk)kk.innerHTML=(S.ki_tools||[]).map((x,i)=>`<div class="row"><label style="flex:0 0 70px;margin:0"><input type="checkbox" style="width:auto;margin-right:6px" ${x.aktiv?'checked':''} onchange="S.ki_tools[${i}].aktiv=this.checked">nutzen</label><input value="${esc(x.name)}" oninput="S.ki_tools[${i}].name=this.value" style="flex:0 0 190px"><input value="${esc(x.url)}" oninput="S.ki_tools[${i}].url=this.value"><button class="xs" onclick="S.ki_tools.splice(${i},1);renderMods()">✕</button></div>`).join('');
+  const l=$('leistl');if(l)l.innerHTML=S.standard_positionen.map((x,i)=>`<div class="row"><span>${esc(x[0])}<br><small style="color:var(--mut)">${esc(x[1])}</small></span><button class="xs" onclick="S.standard_positionen.splice(${i},1);renderMods()">✕</button></div>`).join('')}
+function wendeDesignAn(d){const r=document.documentElement;if(d==='light'||d==='dark')r.dataset.theme=d;else delete r.dataset.theme;try{localStorage.setItem('gaDesign',d||'system')}catch(e){}}
+async function setDesign(d){
+  wendeDesignAn(d);if(S)S.design=d;document.querySelectorAll('#designSeg button').forEach(b=>b.classList.toggle('on',b.dataset.d===d));
+  try{await api('/api/einstellungen',{felder:{design:d}})}catch(e){}
+}
+function addKi(){const n=$('kiNeuN').value.trim(),u=$('kiNeuU').value.trim();if(!n||!u){toast('Bitte Name und Webadresse eintragen.');return}S.ki_tools=S.ki_tools||[];S.ki_tools.push({name:n,url:/^https?:\/\//i.test(u)?u:'https://'+u,aktiv:true});$('kiNeuN').value='';$('kiNeuU').value='';renderMods()}
+function addModul(){const v=$('modNeu').value.trim();if(!v)return;S.gutachten_module_IV.push(v);$('modNeu').value='';renderMods()}
+function addLeist(){const t=$('lNeuT').value.trim();if(!t)return;S.standard_positionen.push([t,$('lNeuX').value.trim()]);$('lNeuT').value='';$('lNeuX').value='';renderMods()}
+const num=v=>String(v).replace(',','.');
+function sammle(){
+  const f={};FELDER.forEach(k=>{const e=$('s_'+k);if(e)f[k]=e.value.trim()});
+  if($('s_m2'))f.honorar_pro_stunde={M2:num($('s_m2').value),M3:num($('s_m3').value)};
+  if($('modl')){f.gutachten_module_IV=S.gutachten_module_IV;f.standard_positionen=S.standard_positionen}
+  if($('kil'))f.ki_tools=S.ki_tools;
+  return f;
+}
+async function speichern(still){
+  const b={felder:sammle()};if($('s_ordner'))b.arbeitsordner=$('s_ordner').value.trim();
+  if(b.arbeitsordner===''&&!ST.konfiguriert)throw new Error('Bitte einen Arbeitsordner angeben.');
+  const j=await api('/api/einstellungen',b);ST.arbeitsordner=j.arbeitsordner;ST.konfiguriert=true;await ladeEinst();if(!still)toast('Gespeichert');
+}
+function nachSektion(){renderMods();if($('komp'))ladeKomp()}
+async function zeigeEinstellungen(){
+  cur=null;wz=null;renderListe();await ladeEinst();
+  $('main').innerHTML=`<h2>Einstellungen</h2><div class="sub">Alles, was für alle Fälle gilt. Mit „Speichern“ übernehmen.</div>
+   ${['design','gutachter','bank','honorar','vorlagen','bausteine','kitools','programme'].map(k=>SEC[k]()).join('')}
+   <div class="nav"><span></span><button class="pri" onclick="speichern().catch(e=>toast(e.message))">Speichern</button></div>
+   <div class="card"><h3>Arbeitsordner</h3><p>Aktuell: <code>${esc(ST.arbeitsordner)}</code></p><button onclick="wizard(1)">Arbeitsordner ändern ...</button> <button onclick="wizard(0)">Einrichtungsassistent erneut starten</button></div>`;
+  nachSektion();
+}
+const WSTEPS=[['Willkommen',null],['Arbeitsordner','ordner'],['Gutachter','gutachter'],['Bankverbindung','bank'],['Honorar','honorar'],['Vorlagen','vorlagen'],['Bausteine','bausteine'],['KI-Dienste','kitools'],['Programme','programme'],['Fertig',null]];
+async function wizard(i){
+  wz=i;cur=null;if(ST.konfiguriert||i>1)await ladeEinst().catch(()=>{});
+  if(!S){S={gutachter_name:'',gutachter_titel:'',fachgebiet:'Psychiatrie',gutachten_titel:'Psychiatrisches Gutachten',strasse:'',plz_ort:'',ort:'',kontoinhaber:'',iban:'',bic:'',bank:'',km_satz:0.42,schreibgebuehr_pro_einheit:1.5,anschlaege_pro_einheit:1000,honorar_pro_stunde:{M2:98,M3:131},standard_positionen:[],gutachten_module_IV:[],ki_tools:[],ki_prompt_zusatz:''};V={};BES={}}
+  const [titel,sec]=WSTEPS[i];
+  const bar=`<div class="steps">${WSTEPS.map((s,k)=>`<span class="${k===i?'on':k<i?'done':''}">${k+1}. ${s[0]}</span>`).join('')}</div>`;
+  let inhalt='';
+  if(i===0)inhalt=`<div class="card"><h2>Einrichtung</h2><p style="font-size:15px">Willkommen. In wenigen Schritten richten wir den Assistenten ein. Du musst nichts Technisches wissen.</p>
+   <p style="font-size:15px">Alles läuft auf diesem Computer. Deine Akten, Aufnahmen und Texte werden nicht an Dritte gesendet; nur wenn du selbst eine pseudonymisierte Datei bei einem KI-Dienst hochlädst.</p>
+   <p style="font-size:15px">Die Einrichtung dauert etwa 10 Minuten. Der Schritt „Programme“ lädt einige Bausteine aus dem Internet.</p></div>`;
+  else if(i===9)inhalt=`<div class="card"><h2>Fertig</h2><p style="font-size:15px">Der Assistent ist eingerichtet. Du kannst jetzt deinen ersten Fall anlegen.</p><p>Spätere Änderungen findest du jederzeit unter „Einstellungen“ (Vorlagen, Module, Leistungen, Bankdaten).</p></div>`;
+  else inhalt=SEC[sec]();
+  $('main').innerHTML=`${bar}${inhalt}<div class="nav"><button ${i===0?'disabled':''} onclick="wizardWeiter(${i-1},false)">Zurück</button>
+   <button class="pri" onclick="wizardWeiter(${i+1},true)">${i===9?'Los geht\'s':'Weiter'}</button></div>`;
+  nachSektion();
+}
+async function wizardWeiter(ziel,speicher){
+  try{
+    if(speicher&&wz>=1&&wz<=8)await speichern(true);
+    if(wz===9&&speicher){ST.konfiguriert=true;$('seite').style.display='flex';await ladeListe();willkommen();return}
+    wizard(ziel);
+  }catch(e){toast(e.message)}
+}
+
+/* Vorlagen */
+function ladeVorlage(art,inp){
+  const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=async()=>{try{await api('/api/vorlage',{art,name:f.name,daten:r.result.split(',')[1]});toast('Vorlage hochgeladen');await ladeEinst();rerenderSek()}catch(e){toast(e.message)}};r.readAsDataURL(f);
+}
+async function resetVorlage(art){if(!confirm('Eigene Vorlage entfernen und wieder die Standardvorlage verwenden?'))return;await api('/api/vorlage_reset',{art});await ladeEinst();rerenderSek()}
+async function oeffneVorlage(art){try{await api('/api/vorlage_oeffnen',{art});toast('Die Vorlage wird in Word geöffnet. Nach dem Speichern gilt sie für alle neuen Dokumente.');setTimeout(async()=>{await ladeEinst();rerenderSek()},1500)}catch(e){toast(e.message)}}
+function rerenderSek(){if(wz!==null)wizard(wz);else zeigeEinstellungen()}
+
+/* Programme */
+async function ladeKomp(){
+  K=await api('/api/komponenten');const t=K.tesseract,win=K.os.startsWith('win'),mac=K.os==='darwin';
+  const fehlend=K.pakete.filter(p=>!p.vorhanden).map(p=>p.pip);window._fehlend=fehlend;
+  $('komp').innerHTML=`<table class="t">${K.pakete.map(p=>`<tr><td>${esc(p.text)}${p.pflicht?'':' <small>(optional)</small>'}</td><td class="${p.vorhanden?'ok':'bad'}">${p.vorhanden?'bereit':'fehlt'}</td></tr>`).join('')}
+   <tr><td>Texterkennung für gescannte PDFs (Tesseract)</td><td class="${t.tesseract?'ok':'bad'}">${t.tesseract?'bereit':'fehlt'}</td></tr>
+   <tr><td>Deutsches Sprachpaket für die Texterkennung</td><td class="${t.deu?'ok':'bad'}">${t.deu?'bereit':'fehlt'}</td></tr></table>
+   <div class="files"><button class="pri" ${fehlend.length?'':'disabled'} onclick="setup('pip',window._fehlend)">${fehlend.length?'Fehlende Programme installieren':'Alle Programme sind installiert'}</button>
+   <button ${t.tesseract?'disabled':''} onclick="setup('tesseract')">Tesseract installieren</button>
+   <button ${t.deu?'disabled':''} onclick="setup('tessdata')">Deutsches Sprachpaket laden</button>
+   <button onclick="setup('modell')">Sprachmodell für Transkription jetzt laden (optional, mehrere GB)</button></div>
+   ${!t.tesseract?`<div class="warn"><b>Tesseract</b> liest gescannte Seiten.${win&&K.winget?' Der Knopf „Tesseract installieren“ erledigt das; Windows fragt eventuell um Erlaubnis.':win?' Bitte den Installer von github.com/UB-Mannheim/tesseract/wiki laden und ausführen.':''}${mac?(K.brew?' Der Knopf „Tesseract installieren“ erledigt das.':' Bitte zuerst Homebrew installieren (brew.sh), dann erneut hier klicken.'):''} Danach „Deutsches Sprachpaket laden“ klicken. Ohne Tesseract funktionieren Text-PDFs, Scans werden nur gemeldet.</div>`:''}`;
+}
+async function setup(aktion,pakete){
+  try{const j=await api('/api/setup',{aktion,pakete});await laufen(j.job,ladeKomp)}catch(e){toast(e.message)}
+}
+
+/* ---------- Fall ---------- */
+function dateiListe(sub,namen){
+  if(!namen.length)return '<span style="color:var(--mut);font-size:13px">noch nichts vorhanden</span>';
+  return namen.map(n=>`<span class="file">${esc(n)}<button class="link" title="Öffnen" onclick='oeffneDatei("${sub}",${esc(JSON.stringify(n))})'>öffnen</button></span>`).join('');
+}
+async function oeffneDatei(sub,name){try{await api('/api/open',{id:cur,sub,name})}catch(e){toast(e.message)}}
+async function oeffneOrdner(sub){try{await api('/api/open',{id:cur,sub})}catch(e){toast(e.message)}}
+async function neuAnlegen(){
+  try{
+    const j=await api('/api/neu',{az:$('nAz').value,gericht:$('nGericht').value,beschluss:$('nBes').value,untersuchung:$('nUnt').value,gutachten_datum:$('nGut').value,gruppe:$('nGr').value});
+    const az=$('nAz').value.trim(),ge=$('nGericht').value.trim();schliesse('mNeu');
+    await laufen(j.job,async()=>{await ladeListe();const f=faelle.find(x=>x.az===az&&x.gericht===ge);if(f)waehle(f.id)});
+  }catch(e){toast(e.message)}
+}
+async function waehle(id){cur=id;wz=null;renderListe();D=await api('/api/fall?id='+encodeURIComponent(id));await ladeEinst().catch(()=>{});pos=D.fall.positionen.map(p=>({...p}));render()}
+
+let pseudoRows=[];
+function nextPh(art){
+  const used=pseudoRows.map(r=>r.platzhalter);const pre=art==='person'?(pseudoRows.some(r=>r.art==='person')?'Person':'Betroffene'):'Ort';
+  for(const c of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'){if(!['Person_','Betroffene_','Ort_'].some(p=>used.includes(p+c)))return pre+'_'+c}return pre+'_X';
+}
+function renderPseudo(){
+  $('pseudo').innerHTML=pseudoRows.map((r,i)=>`<div class="row"><input value="${esc(r.name)}" placeholder="Vollständiger Name oder Begriff" oninput="pseudoRows[${i}].name=this.value">
+  <select class="s" onchange="pseudoRows[${i}].art=this.value"><option value="person" ${r.art==='person'?'selected':''}>Person</option><option value="sonst" ${r.art!=='person'?'selected':''}>Ort/Sonstiges</option></select>
+  <input class="s" value="${esc(r.platzhalter)}" oninput="pseudoRows[${i}].platzhalter=this.value"><button class="xs" onclick="pseudoRows.splice(${i},1);renderPseudo()">✕</button></div>`).join('');
+}
+function addPseudo(art){pseudoRows.push({name:'',art,platzhalter:nextPh(art)});renderPseudo()}
+async function speicherePseudo(){const j=await api('/api/pseudonyme',{id:cur,eintraege:pseudoRows});pseudoRows=pseudoRows.filter(r=>r.name.trim()&&r.platzhalter.trim());renderPseudo();toast(j.anzahl+' Namen gespeichert');return j.anzahl}
+function renderPos(){
+  $('pos').innerHTML=pos.map((p,i)=>`<div class="row"><input value="${esc(p.titel)}" oninput="pos[${i}].titel=this.value"><input value="${esc(p.text)}" oninput="pos[${i}].text=this.value" placeholder="Beschreibung">
+   <input class="m" type="number" min="0" step="0.5" value="${p.stunden}" oninput="pos[${i}].stunden=this.value"><span style="flex:0 0 30px;color:var(--mut)">Std.</span><button class="xs" onclick="pos.splice(${i},1);renderPos()">✕</button></div>`).join('');
+}
+function addPos(){const t=$('pNeuT').value.trim();if(!t){toast('Bitte eine Bezeichnung eintragen.');return}pos.push({titel:t,text:$('pNeuX').value.trim(),stunden:$('pNeuH').value||0});['pNeuT','pNeuX','pNeuH'].forEach(i=>$(i).value='');renderPos()}
+
+let explRows=[];
+const kiState={modus:'allein',tool:''};
+try{kiState.modus=localStorage.getItem('gaModus')||'allein';kiState.tool=localStorage.getItem('gaTool')||''}catch(e){}
+const aktiveTools=()=>((S&&S.ki_tools)||[]).filter(t=>t.aktiv&&t.url);
+function stale(){const e=$('kiStale');if(e)e.style.display='block'}
+function renderExpl(){
+  $('expl').innerHTML=explRows.map((e,i)=>`<div class="ex"><div class="grid">
+   <div><label class="l">Art</label><input list="artenListe" value="${esc(e.art)}" oninput="explRows[${i}].art=this.value;stale()"></div>
+   <div><label class="l">Datum</label><input value="${esc(e.datum)}" placeholder="TT.MM.JJJJ" oninput="explRows[${i}].datum=this.value;stale()"></div>
+   <div><label class="l">Beteiligte (z. B. „Schwester Person_B“ oder Klarname, wird ersetzt)</label><input value="${esc(e.beteiligte)}" oninput="explRows[${i}].beteiligte=this.value;stale()"></div>
+   <div><label class="l">Ort / Form (z. B. Hausbesuch, telefonisch, per E-Mail)</label><input value="${esc(e.ort)}" oninput="explRows[${i}].ort=this.value;stale()"></div>
+   <div class="full"><label class="l">Notiz: worum ging es, was war wichtig? (optional)</label><textarea rows="2" oninput="explRows[${i}].notiz=this.value;stale()">${esc(e.notiz)}</textarea></div>
+   <div><label class="l">Zugehörige Datei in 02_Gespraeche (Transkript, E-Mail, Notiz; optional)</label><select onchange="explRows[${i}].quelle=this.value;stale()"><option value="">keine</option>${[...new Set([...D.gespraech_quellen,e.quelle].filter(Boolean))].map(n=>`<option ${n===e.quelle?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
+   <div style="align-self:end;text-align:right"><button onclick="explRows.splice(${i},1);renderExpl();stale()">Entfernen</button></div></div></div>`).join('')
+   ||'<p style="color:var(--mut);font-size:13px">Noch nichts eingetragen.</p>';
+  const hat=explRows.some(e=>/^Persönliche/.test(e.art));
+  const b=$('explUnt');if(b)b.style.display=hat||!D.fall.untersuchungsdatum?'none':'inline-block';
+}
+function addExpl(art){explRows.push({art:art||'',datum:'',beteiligte:'',ort:'',notiz:'',quelle:''});renderExpl();stale()}
+function addUnt(){explRows.unshift({art:D.expl_arten[0],datum:D.fall.untersuchungsdatum,beteiligte:'',ort:'',notiz:'',quelle:''});renderExpl();stale()}
+async function speichereAuftrag(still){
+  const felder={gutachten_auftrag:$('aAuf').value,auftrag_datum:$('aDat').value,auftrag_details:$('aDet').value};
+  await api('/api/fall',{id:cur,felder,explorationen:explRows});
+  Object.assign(D.fall,felder);D.fall.explorationen=explRows.map(x=>({...x}));
+  if(!still)toast('Auftrag und Explorationen gespeichert');
+}
+
+function render(){
+  const f=D.fall,d=D.dateien,o=D.ocr;
+  pseudoRows=D.pseudonyme.map(x=>({...x}));
+  explRows=(f.explorationen||[]).map(x=>({art:'',datum:'',beteiligte:'',ort:'',notiz:'',quelle:'',...x}));
+  const eingang=d.akte.filter(n=>!/_pseudonymisiert/.test(n));
+  const quellen=d.gutachten.filter(n=>/\.(docx|md|txt)$/i.test(n)&&!n.startsWith('Gutachten_'));
+  const ocrWarn=!o.tesseract?'Tesseract ist nicht installiert. Gescannte PDFs können dann nicht gelesen werden.':(!o.deu?'Das deutsche Sprachpaket für die Texterkennung fehlt.':'');
+  const leerGutachter=!S||!S.gutachter_name;
+  const tools=aktiveTools();
+  if(!tools.find(t=>t.name===kiState.tool))kiState.tool=tools[0]?tools[0].name:'';
+  $('main').innerHTML=`
+  <h2>${esc(f.aktenzeichen)}</h2>
+  <div class="sub"><span class="chip">AG ${esc(f.gericht)}</span><span class="chip">${esc(f.honorargruppe)}</span> <button class="link" onclick="oeffneOrdner()">Fallordner öffnen</button></div>
+  ${leerGutachter?`<div class="warn"><b>Deine Gutachter-Angaben fehlen noch.</b> Sie erscheinen in Kopf und Unterschrift. <button class="link" onclick="zeigeEinstellungen()">Jetzt unter Einstellungen eintragen</button></div>`:''}
+
+  <div class="card"><h3>Falldaten</h3><p>Das Datum der Gutachtenerstattung steht bei der Unterschrift im Gutachten (und in der Rechnung, wenn kein eigenes Rechnungsdatum gesetzt ist).</p><div class="grid">
+   <div><label class="l">Beschluss vom</label><input id="fBes" value="${esc(f.beschluss_datum)}"></div><div><label class="l">Untersuchungsdatum</label><input id="fUnt" value="${esc(f.untersuchungsdatum)}"></div>
+   <div><label class="l">Datum der Gutachtenerstattung</label><input id="fGut" value="${esc(f.gutachten_datum)}"></div><div><label class="l">Rechnungsdatum (leer = Datum der Erstattung)</label><input id="fRe" value="${esc(f.rechnungsdatum||'')}"></div>
+   <div class="full"><label class="l">Abteilung des Gerichts</label><input id="fAb" value="${esc(f.abteilung||'')}"></div></div>
+   <div style="margin-top:10px"><button onclick="speichereFalldaten()">Falldaten speichern</button></div></div>
+
+  <div class="card"><h3>Geschützte Namen</h3>
+   <p>Diese Namen und Begriffe werden vor jedem Hochladen durch Platzhalter ersetzt (Akte, Transkripte und der KI-Prompt). Vollständigen Namen eingeben, ohne Titel. Für die KI bestimmt ist nur der Ordner 05_KI-Upload.</p>
+   <div id="pseudo"></div>
+   <button onclick="addPseudo('person')">+ Person</button> <button onclick="addPseudo('sonst')">+ Straße/Ort/Sonstiges</button> <button class="pri" onclick="speicherePseudo()">Speichern</button></div>
+
+  <div class="card"><h3><span class="num">1</span>Akte vorbereiten</h3>
+   <p>Lege die Gerichts-PDFs in den Ordner 01_Akte (Namen mit 01_, 02_ … beginnen lassen = Reihenfolge). Sie werden lokal zusammengeführt, in Text umgewandelt, Scans per Texterkennung gelesen und pseudonymisiert. Das Ergebnis (<code>Akte_pseudonymisiert.md</code>) landet im Ordner 05_KI-Upload.</p>
+   <div class="files">Eingang: ${dateiListe('akte',eingang)}</div>
+   ${ocrWarn?`<div class="warn"><b>${ocrWarn}</b> Unter <button class="link" onclick="zeigeEinstellungen()">Einstellungen › Programme</button> lässt sie sich mit einem Klick installieren.</div>`:''}
+   <button class="pri" onclick="starte('akte')">Akte vorbereiten</button> <button onclick="oeffneOrdner('akte')">Ordner 01_Akte öffnen</button>
+   <div class="files">Ergebnis für die KI (05_KI-Upload): ${dateiListe('ki',D.ki_dateien.filter(n=>/^Akte/.test(n)))}</div></div>
+
+  <div class="card"><h3><span class="num">2</span>Gespräche <span class="chip" style="margin-left:4px">optional</span></h3>
+   <p>Nur nötig, wenn ein Gespräch aufgenommen wurde. Aufnahmen bitte nur mit Einwilligung der betroffenen Person und aller Beteiligten. Lege Aufnahmen (z. B. aus Voice Memos) in den Ordner 02_Gespraeche; die Transkription läuft lokal und erzeugt eine Markdown-Datei (<code>.md</code>) im selben Ordner. Dort kannst du auch eigene Notizen, E-Mails oder Fremdanamnesen als <code>.md</code>/<code>.txt</code> ablegen. Dann Korrektur lesen (Namen und Fachbegriffe werden oft falsch geschrieben) und erst danach pseudonymisieren. Die pseudonymisierte Fassung kommt nach 05_KI-Upload.</p>
+   <div class="files">${dateiListe('gespraeche',d.gespraeche)}</div>
+   <button class="pri" onclick="starte('transkript')">Aufnahmen transkribieren</button> <button onclick="oeffneOrdner('gespraeche')">Ordner 02_Gespraeche öffnen</button>
+   <button onclick="starte('pseudo')">Transkripte/Notizen pseudonymisieren</button>
+   <div class="files">Ergebnis für die KI (05_KI-Upload): ${dateiListe('ki',D.ki_dateien.filter(n=>!/^Akte/.test(n)))}</div></div>
+
+  <div class="card"><h3><span class="num">3</span>Auftrag und Explorationen</h3>
+   <p>Was wurde beauftragt, und worauf stützt sich das Gutachten? Das bestimmst du hier; es fließt in den Entwurf und in den KI-Prompt ein (Namen werden dort ersetzt).</p>
+   <div class="grid">
+    <div class="full"><label class="l">Auftrag (Kurzfassung, steht im Kopf des Gutachtens)</label><input id="aAuf" value="${esc(f.gutachten_auftrag||'')}" oninput="stale()"></div>
+    <div><label class="l">Auftrag eingegangen am</label><input id="aDat" value="${esc(f.auftrag_datum||'')}" placeholder="TT.MM.JJJJ" oninput="stale()"></div>
+    <div><label class="l">Beschluss vom / Untersuchung am</label><div style="padding:6px 0;color:var(--mut)">${esc(f.beschluss_datum||'–')} / ${esc(f.untersuchungsdatum||'–')} (unter „Falldaten“ änderbar)</div></div>
+    <div class="full"><label class="l">Fragestellung des Gerichts im Wortlaut, Aufgabenkreise, weitere Vorgaben (optional)</label><textarea id="aDet" rows="4" oninput="stale()">${esc(f.auftrag_details||'')}</textarea></div></div>
+   <h3 style="margin-top:14px;font-size:15px">Explorationen und Kontakte</h3>
+   <p>Alles, was zum Gutachten beigetragen hat, mit Datum: persönliche Untersuchung, Fremdanamnese, Telefonate, E-Mails, Briefe. Namen in „Beteiligte“, „Ort“ und „Notiz“ werden im KI-Prompt automatisch ersetzt, wenn sie oben unter „Geschützte Namen“ stehen.</p>
+   <datalist id="artenListe">${D.expl_arten.map(a=>`<option value="${esc(a)}">`).join('')}</datalist>
+   <div id="expl"></div>
+   <button onclick="addExpl()">+ Exploration / Kontakt</button> <button id="explUnt" onclick="addUnt()">+ Untersuchung vom ${esc(f.untersuchungsdatum)} übernehmen</button> <button class="pri" onclick="speichereAuftrag().catch(e=>toast(e.message))">Speichern</button></div>
+
+  <div class="card"><h3><span class="num">4</span>Gutachten-Entwurf</h3>
+   <p>Wie möchtest du den Entwurf schreiben?</p>
+   <div class="seg"><button id="mAllein" onclick="setModus('allein')">Selbst schreiben</button><button id="mKi" onclick="setModus('ki')">Mit KI-Unterstützung</button></div>
+   <div class="grid" style="margin-top:12px">
+    <div><label class="l">Betroffene Person (Name, geb. TT.MM.JJJJ)</label><input id="eBp" value="${esc(f.betroffene_person||'')}"></div>
+    <div><label class="l">Adresse der betroffenen Person</label><input id="eAd" value="${esc(f.adresse||'')}"></div>
+    <div><label class="l">Richter/in am Amtsgericht</label><input id="eRi" value="${esc(f.richter||'')}"></div>
+    <div><label class="l">Untersuchungsort</label><input id="eOr" value="${esc(f.untersuchungsort||'')}" placeholder="leer = Adresse"></div></div>
+   <p style="margin-top:4px">Diese vier Angaben stehen nur im Kopf des Gutachtens. Sie gehen <b>nie</b> in den KI-Prompt.</p>
+   <div class="mods" id="eMods"><label class="l" style="margin-top:8px">Gliederung: Module für Abschnitt IV</label><div id="eModl">${D.module.map((m,i)=>`<label><input type="checkbox" checked value="${i+1}" onchange="refreshSoon()">${esc(m)}</label>`).join('')}</div>
+     <div class="row" style="margin-top:6px"><input id="eModNeu" placeholder="Eigenes Modul hinzufügen, z. B. Testierfähigkeit"><button class="m" onclick="neuesModul()">Hinzufügen</button></div></div>
+
+   <div id="boxAllein" style="margin-top:12px"><p>Es wird ein Gerüst nach deiner Vorlage erstellt (Kopf, Abschnitte I–V mit den gewählten Modulen) und sofort in Word geöffnet. Dort schreibst du den Text selbst.</p>
+    <button class="pri" onclick="entwurf('')">Gerüst erstellen und in Word öffnen</button> <button onclick="oeffneOrdner('gutachten')">Ordner 03_Gutachten öffnen</button></div>
+
+   <div id="boxKi" style="margin-top:12px">
+    <div class="grid">
+     <div><label class="l">KI-Dienst</label>${tools.length?`<select id="kiTool" onchange="kiState.tool=this.value;try{localStorage.setItem('gaTool',this.value)}catch(e){};kiLink()">${tools.map(t=>`<option ${t.name===kiState.tool?'selected':''}>${esc(t.name)}</option>`).join('')}</select>`
+        :`<div class="warn" style="margin:0">Noch kein KI-Dienst eingetragen. <button class="link" onclick="zeigeEinstellungen()">Unter Einstellungen hinzufügen</button></div><select id="kiTool" style="display:none"></select>`}</div>
+     <div><label class="l">Arbeitsweise</label><select id="kiWw" onchange="refreshSoon()">${Object.entries(D.arbeitsweisen).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('')}</select></div></div>
+    <label class="l" style="margin-top:10px">Dateien für die KI (pseudonymisiert, aus 05_KI-Upload)</label>
+    <div class="mods" id="kiDat">${D.ki_dateien.length?D.ki_dateien.map(n=>`<label><input type="checkbox" checked value="${esc(n)}" onchange="refreshSoon()">${esc(n)}</label>`).join(''):'<div class="warn" style="margin:2px 0">Noch keine pseudonymisierten Dateien. Zuerst Schritt 1 (und ggf. 2) ausführen.</div>'}</div>
+    <div id="kiHinw"></div>
+    <div id="kiStale" class="warn" style="display:none">Auftrag oder Explorationen wurden geändert. <button class="link" onclick="refreshPrompt().catch(e=>toast(e.message))">Prompt neu erzeugen</button></div>
+    <label class="l" style="margin-top:8px">Prompt (du kannst ihn vor dem Kopieren bearbeiten)</label>
+    <textarea id="kiPrompt" class="prompt" rows="14" spellcheck="false"></textarea>
+    <div class="files"><button class="pri" onclick="kiOeffnen()">① Prompt kopieren und KI öffnen</button>
+     <a class="b" id="kiLink" target="_blank" rel="noopener">nur KI öffnen</a>
+     <button onclick="kiDateienKopieren()">② Dateien kopieren</button> <button onclick="kiDateienZeigen()">Dateien im Ordner 05_KI-Upload zeigen</button> <button onclick="refreshPrompt().catch(e=>toast(e.message))">Prompt neu erzeugen</button></div>
+    <div class="warn"><b>So geht es weiter:</b> ① kopiert den Prompt und öffnet den Dienst in einem neuen Tab; dort mit Strg+V (Mac: Cmd+V) einfügen, aber noch nicht absenden. ② legt die Dateien in die Zwischenablage; im Chat nochmals Strg+V, dann hängen sie als Anhänge an (je nach Dienst). Klappt das nicht, öffnet „Dateien im Ordner zeigen“ den Ordner, und du ziehst sie in den Chat. Ein Hochladen im Hintergrund ist bei Web-Diensten technisch nicht möglich.<br>
+     <b>Vorher prüfen:</b> Stichprobe der Dateien und des Prompts auf übersehene Namen, Training mit Eingaben im Konto ausgeschaltet bzw. passender Vertrag (Datenschutz, § 203 StGB: deine Verantwortung).</div>
+    <h3 style="margin:14px 0 4px;font-size:15px">Antwort der KI übernehmen</h3>
+    <p>Kopiere den fertigen Text aus dem Chat hierher. Die Platzhalter werden zurückgetauscht, der Text kommt in deine Gutachten-Vorlage und wird in Word geöffnet.</p>
+    <textarea id="kiAntwort" rows="6" placeholder="Antwort der KI hier einfügen (Strg+V) ..."></textarea>
+    <div style="margin-top:8px"><button class="pri" onclick="kiAntwortUebernehmen()">Als Entwurf übernehmen und in Word öffnen</button></div>
+    <details><summary>Oder eine gespeicherte Datei aus 03_Gutachten verwenden (Word von der KI, .md, .txt)</summary>
+     <div class="row"><select id="eQuelle">${quellen.length?quellen.map(n=>`<option>${esc(n)}</option>`).join(''):'<option value="">(keine Datei vorhanden)</option>'}</select><button class="m" style="flex:0 0 140px" onclick="entwurf($('eQuelle').value)">Übernehmen</button></div>
+     <button onclick="oeffneOrdner('gutachten')">Ordner 03_Gutachten öffnen</button></details></div>
+   <div class="files">${dateiListe('gutachten',d.gutachten)}</div></div>
+
+  <div class="card"><h3><span class="num">5</span>Rechnung</h3>
+   <p>Trage die Dauer je Leistung ein (0 = entfällt). Du kannst Leistungen ändern, entfernen oder hinzufügen. Fahrtkosten und Schreibgebühr erscheinen nur, wenn Kilometer bzw. Anschläge eingetragen sind.</p>
+   <div class="row"><span style="flex:0 0 120px">Honorargruppe</span><select id="rGr" class="s"><option ${f.honorargruppe==='M3'?'selected':''}>M3</option><option ${f.honorargruppe==='M2'?'selected':''}>M2</option></select></div>
+   <div id="pos"></div>
+   <div class="row" style="margin-top:4px"><input id="pNeuT" placeholder="Neue Leistung, z. B. Testung"><input id="pNeuX" placeholder="Beschreibung"><input class="m" id="pNeuH" type="number" min="0" step="0.5" placeholder="Std."><span style="flex:0 0 30px"></span><button class="m" onclick="addPos()">Hinzufügen</button></div>
+   <div class="grid" style="margin-top:8px">
+    <div><label class="l">Einfache Strecke (km)</label><input id="rKm" type="number" min="0" step="1" value="${f.fahrt.km_einfach}"></div>
+    <div><label class="l">Fahrtziel (Ort)</label><input id="rZiel" value="${esc(f.fahrt.ziel)}"></div>
+    <div><label class="l">Anschläge des Gutachtens (inkl. Leerzeichen)</label><input id="rAn" type="number" min="0" value="${f.anschlaege}"></div></div>
+   <div style="margin-top:10px"><button class="pri" onclick="rechnung()">Rechnung erstellen</button> <button onclick="oeffneOrdner('rechnung')">Ordner 04_Rechnung öffnen</button> <button onclick="rechnungsliste(true)">Rechnungsliste (Excel) öffnen</button> <button onclick="rechnungsliste(false)">Liste aktualisieren</button></div>
+   <div class="files">${dateiListe('rechnung',d.rechnung)}</div></div>`;
+  renderPseudo();renderPos();renderExpl();setModus(kiState.modus,true);
+}
+function setModus(m,beimRender){
+  kiState.modus=m;try{localStorage.setItem('gaModus',m)}catch(e){}
+  $('mAllein').classList.toggle('on',m==='allein');$('mKi').classList.toggle('on',m==='ki');
+  $('boxAllein').style.display=m==='allein'?'block':'none';$('boxKi').style.display=m==='ki'?'block':'none';
+  if(m==='ki'){kiLink();refreshPrompt().catch(e=>toast(e.message))}
+}
+function kiLink(){const t=aktiveTools().find(x=>x.name===$('kiTool').value),a=$('kiLink');if(!a)return;if(t){a.href=t.url;a.style.display='inline-block';a.textContent=t.name+' öffnen'}else a.style.display='none'}
+let _kt;function refreshSoon(){clearTimeout(_kt);_kt=setTimeout(()=>refreshPrompt().catch(e=>toast(e.message)),400)}
+const kiDateiAuswahl=()=>[...document.querySelectorAll('#kiDat input:checked')].map(x=>x.value);
+async function refreshPrompt(){
+  if(!$('kiPrompt'))return;
+  await speichereAuftrag(true);
+  const mods=[...document.querySelectorAll('#eModl input:checked')].map(x=>+x.value);
+  const r=await api('/api/ki_prompt',{id:cur,module:mods,arbeitsweise:$('kiWw').value,dateien:kiDateiAuswahl()});
+  if(!$('kiPrompt'))return;
+  $('kiPrompt').value=r.prompt;$('kiStale').style.display='none';
+  $('kiHinw').innerHTML=r.hinweise.map(h=>`<div class="warn">${esc(h)}</div>`).join('');
+}
+async function kopiereText(t){
+  try{await navigator.clipboard.writeText(t);return true}catch(e){try{return (await api('/api/ki_text_kopieren',{id:cur,text:t})).ok}catch(e2){return false}}
+}
+async function kiOeffnen(){
+  const t=$('kiPrompt').value;if(!t.trim()){toast('Der Prompt ist leer.');return}
+  const tool=aktiveTools().find(x=>x.name===$('kiTool').value);
+  const ok=await kopiereText(t);
+  toast(ok?'Prompt kopiert. Im Chat mit Strg+V (Mac: Cmd+V) einfügen.':'Kopieren war nicht möglich. Bitte den Prompt von Hand markieren und kopieren.',7000);
+  if(tool){const w=window.open(tool.url,'_blank');if(!w)toast('Das neue Tab wurde blockiert. Bitte „'+tool.name+' öffnen“ anklicken.',9000)}
+}
+async function kiDateienKopieren(){
+  const dat=kiDateiAuswahl();if(!dat.length){toast('Keine Datei ausgewählt.');return}
+  try{const r=await api('/api/ki_dateien_kopieren',{id:cur,dateien:dat});
+    if(r.ok)toast(r.anzahl+' Datei(en) kopiert. Im Chat Strg+V (Mac: Cmd+V) drücken.',8000);
+    else{toast('Automatisches Kopieren der Dateien ging hier nicht. Ich öffne den Ordner: bitte die Dateien in den Chat ziehen.',9000);await api('/api/ki_dateien_zeigen',{id:cur,dateien:dat})}
+  }catch(e){toast(e.message)}
+}
+async function kiDateienZeigen(){const dat=kiDateiAuswahl();if(!dat.length){toast('Keine Datei ausgewählt.');return}try{await api('/api/ki_dateien_zeigen',{id:cur,dateien:dat})}catch(e){toast(e.message)}}
+async function kiAntwortUebernehmen(){
+  try{const t=$('kiAntwort').value;if(t.trim().length<50){toast('Bitte zuerst die Antwort der KI einfügen.');return}
+    const j=await api('/api/ki_antwort',{id:cur,text:t});await entwurf(j.datei)}catch(e){toast(e.message)}
+}
+async function neuesModul(){
+  const v=$('eModNeu').value.trim();if(!v)return;
+  try{await ladeEinst();S.gutachten_module_IV.push(v);await api('/api/einstellungen',{felder:{gutachten_module_IV:S.gutachten_module_IV}});
+    D.module=S.gutachten_module_IV;const checked=new Set([...document.querySelectorAll('#eModl input:checked')].map(x=>x.value));
+    $('eModl').innerHTML=D.module.map((m,i)=>`<label><input type="checkbox" ${checked.has(String(i+1))||i===D.module.length-1?'checked':''} value="${i+1}" onchange="refreshSoon()">${esc(m)}</label>`).join('');$('eModNeu').value='';toast('Modul hinzugefügt (steht künftig bei allen Fällen zur Verfügung)');refreshSoon()}catch(e){toast(e.message)}
+}
+async function speichereFalldaten(){
+  try{const felder={beschluss_datum:$('fBes').value,untersuchungsdatum:$('fUnt').value,gutachten_datum:$('fGut').value,rechnungsdatum:$('fRe').value,abteilung:$('fAb').value};
+    await api('/api/fall',{id:cur,felder});Object.assign(D.fall,felder);toast('Falldaten gespeichert')}catch(e){toast(e.message)}
+}
+async function starte(cmd,extra={}){
+  if((cmd==='akte'||cmd==='pseudo')&&!pseudoRows.some(r=>r.name.trim())){
+    if(!confirm('Es sind keine geschützten Namen eingetragen. Die Dateien würden OHNE Pseudonymisierung erstellt. Trotzdem fortfahren?'))return;
+  }
+  try{await api('/api/pseudonyme',{id:cur,eintraege:pseudoRows});const j=await api('/api/run',{id:cur,cmd,...extra});return await laufen(j.job,()=>waehle(cur))}catch(e){toast(e.message)}
+}
+async function entwurf(q){
+  q=q||'';const docx=/\.docx$/i.test(q);
+  try{
+    await speichereAuftrag(true);
+    if(!docx){
+      const fe={betroffene_person:$('eBp').value,adresse:$('eAd').value,richter:$('eRi').value,untersuchungsort:$('eOr').value||$('eAd').value};
+      if(!fe.betroffene_person||!fe.adresse||!fe.richter){toast('Bitte Betroffene Person, Adresse und Richter/in ausfüllen.');return}
+      await api('/api/fall',{id:cur,felder:fe});
+    }
+    const mods=[...document.querySelectorAll('#eModl input:checked')].map(x=>+x.value);
+    const txt=await starte('entwurf',{datei:q||undefined,module:q?undefined:mods});
+    const m=/(?:Entwurf erstellt:|->)\s+(.+?\.docx)/.exec(txt||'');
+    if(m){try{await api('/api/open',{id:cur,sub:'gutachten',name:m[1].trim()});toast('Entwurf in Word geöffnet: '+m[1].trim(),6000)}catch(e){toast(e.message)}}
+  }catch(e){toast(e.message)}
+}
+async function rechnungsliste(oeffnen){try{const r=await api('/api/rechnungsliste',{id:cur,oeffnen});toast(oeffnen?'Liste geöffnet: '+r.datei:'Liste abgeglichen: '+r.datei+'. Gelöschte Rechnungen sind entfernt.')}catch(e){toast(e.message)}}
+async function rechnung(){
+  try{
+    if(+$('rKm').value>0&&!$('rZiel').value.trim()){toast('Bitte das Fahrtziel eintragen.');return}
+    const unt=D.fall.untersuchungsdatum,bes=D.fall.beschluss_datum;
+    const ps=pos.map(p=>({titel:String(p.titel).replace('{untersuchungsdatum}',unt).replace('{beschluss_datum}',bes),text:p.text,stunden:p.stunden||0}));
+    await api('/api/fall',{id:cur,felder:{honorargruppe:$('rGr').value},positionen:ps,km:$('rKm').value||0,ziel:$('rZiel').value,anschlaege:$('rAn').value||0});
+    await starte('rechnung');
+  }catch(e){toast(e.message)}
+}
+
+function anzeige(t){return t.split('\n').map(l=>{const k=l.lastIndexOf('\r');return k>=0?l.slice(k+1):l}).join('\n')}
+async function laufen(job,danach){
+  document.querySelectorAll('button').forEach(b=>{if(!b.classList.contains('link'))b.disabled=true});
+  const lt=$('logt'),ls=$('logs');lt.textContent='';let p=0,voll='';ls.innerHTML='<span class="spin"></span>Läuft ...';
+  try{
+    while(true){
+      const r=await api(`/api/job?id=${job}&pos=${p}`);p=r.pos;voll+=r.text;lt.textContent=anzeige(voll).trim();lt.scrollTop=lt.scrollHeight;
+      if(r.done){ls.textContent=r.code===0?'Fertig':'Beendet mit Hinweis oder Fehler (siehe Protokoll)';break}
+      await new Promise(s=>setTimeout(s,600));
+    }
+  }catch(e){ls.textContent='Verbindung verloren';}
+  document.querySelectorAll('button').forEach(b=>b.disabled=false);
+  if(danach)await danach();
+  return voll;
+}
+async function beenden(){if(!confirm('Gutachten-Assistent beenden?'))return;try{await api('/api/quit',{})}catch(e){}document.body.innerHTML='<div class="leer"><h2>Beendet</h2><p>Du kannst dieses Fenster schließen.</p></div>'}
+setInterval(()=>api('/api/ping').catch(()=>{}),30000);
+init();
+</script>
+</body>
+</html>

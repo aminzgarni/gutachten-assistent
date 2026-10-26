@@ -1,0 +1,51 @@
+GUTACHTEN-ASSISTENT – Anleitung für den Einstieg
+
+SCHRITT 1: Ordner ablegen
+Entpacke die Zip-Datei an einen Ort deiner Wahl (z. B. in "Dokumente"). Der Ordner "Gutachten-Assistent" enthält nur das Programm.
+Deine Fälle und Einstellungen liegen später in einem eigenen Arbeitsordner, den du im Assistenten festlegst
+(z. B. in OneDrive, Google Drive, Dropbox oder einfach auf diesem Computer).
+
+SCHRITT 2: Einrichten (einmalig pro Computer)
+Windows: Doppelklick auf "Einrichten-Windows.bat". Das Programm installiert Python (falls nötig) und die Grundbausteine.
+         Windows fragt eventuell um Erlaubnis: mit "Ja" bestätigen.
+Mac:     Rechtsklick auf "Einrichten-Mac.command" > "Öffnen" > "Öffnen". Falls Python fehlt, öffnet sich die Download-Seite:
+         Installer laden, durchklicken, danach die Datei erneut öffnen.
+Danach startet der Assistent im Browser und führt dich Schritt für Schritt durch die Einrichtung
+(Arbeitsordner, deine Angaben, Bank, Sätze, Vorlagen, Programme für Texterkennung und Transkription).
+
+SCHRITT 3: Täglich benutzen
+Doppelklick auf "Gutachten starten" (Windows: .bat, Mac: .command). Der Browser öffnet die Seite.
+Links: deine Fälle und "Neuer Fall". Rechts: die Schritte des Falls. Unten: Protokoll.
+Beenden: Knopf "Beenden" oben rechts.
+
+ABLAUF PRO FALL
+ 0. Geschützte Namen eintragen (Betroffene, Angehörige, Straßen/Orte) und speichern.
+ 1. Akte: Gerichts-PDFs in 01_Akte legen, "Akte vorbereiten". Ergebnis (Akte_pseudonymisiert.md) liegt in 05_KI-Upload.
+ 2. Gespräche (OPTIONAL): Nur wenn aufgenommen wurde (mit Einwilligung aller Beteiligten): Aufnahmen in 02_Gespraeche legen, "Aufnahmen transkribieren" (lokal, Ergebnis .md).
+    Transkript Korrektur lesen. Eigene Notizen/E-Mails/Fremdanamnesen kannst du als .md/.txt dort ablegen. Dann "Transkripte/Notizen pseudonymisieren": Ergebnis (Transkript_..._pseudonymisiert.md) landet in 05_KI-Upload.
+ 3. Auftrag und Explorationen: Auftrag (Kurzfassung, Datum des Eingangs, Fragen des Gerichts) und alle Explorationen/Kontakte mit Datum eintragen
+    (Untersuchung, Fremdanamnese, Telefonate, E-Mails ...), optional mit zugehöriger Datei.
+ 4. Entwurf: Wähle "Selbst schreiben" (Gerüst wird erstellt und in Word geöffnet) oder "Mit KI-Unterstützung":
+    Der Assistent erzeugt einen angepassten, pseudonymisierten Prompt. Knopf 1 kopiert ihn und öffnet den gewählten KI-Dienst in einem neuen Tab (einfügen mit Strg+V).
+    Knopf 2 legt die Dateien aus 05_KI-Upload (z. B. Akte und Transkript, zwei .md-Dateien) in die Zwischenablage (im Chat nochmals Strg+V), alternativ "Dateien im Ordner 05_KI-Upload zeigen" und in den Chat ziehen.
+    Die Antwort der KI fügst du im Assistenten ein: Namen werden zurückgetauscht, der Text kommt in deine Vorlage und wird in Word geöffnet.
+    Die KI-Dienste stellst du unter Einstellungen > KI-Dienste ein (jederzeit änderbar).
+ 5. Rechnung: Honorargruppe, Leistungen mit Dauer (auch eigene hinzufügen) eintragen, "Rechnung erstellen".
+    Im Arbeitsordner entsteht automatisch die Liste Rechnungen_JJJJ.xlsx für den Steuerberater (Spalten: Aktenzeichen, Gericht, Rechnungsdatum,
+    Honorargruppe, Stunden, Gesamtbetrag EUR, Status, Datei), je Jahr des Rechnungsdatums. Neue Rechnung = neue Zeile. Wird eine Rechnungs-Datei
+    gelöscht, entfällt die Zeile beim nächsten Öffnen des Assistenten oder Fall (oder per "Liste aktualisieren"). Die Spalte Status kannst du von Hand pflegen.
+    Excel-Datei vorher schließen, sonst kann sie nicht aktualisiert werden.
+
+ORDNER PRO FALL: 01_Akte (Gerichts-PDFs), 02_Gespraeche (optional, mit Klarnamen), 03_Gutachten, 04_Rechnung, 05_KI-Upload (nur pseudonymisierte .md), _intern.
+Fälle im alten Aufbau werden beim Öffnen automatisch umgestellt.
+
+WICHTIG
+- Hochgeladen wird nur, was in 05_KI-Upload liegt. Die Ordner 01_Akte, 02_Gespraeche und _intern (Originalnamen, Originaltext) NIE hochladen.
+- Darstellung (hell/dunkel/System): Einstellungen > Darstellung.
+- Vor dem Hochladen die pseudonymisierte Datei kurz überfliegen (seltene Diagnose + Ort kann identifizieren).
+- OCR-Seiten sind im Text markiert; Texterkennung macht Fehler, bitte stichprobenartig prüfen.
+- Geburtsdaten, Telefon, E-Mail, IBAN werden ersetzt und nicht zurückgetauscht; gleicher Nachname bei mehreren Personen wird zu [NAME].
+- Bestehende Dateien werden nie überschrieben (_v1, _v2, ...).
+- Honorarsätze, Kilometergeld und Schreibgebühr bitte gegen das aktuelle JVEG prüfen (Einstellungen > Honorar).
+- Vorlagen: Einstellungen > Vorlagen. Die Standardvorlagen lassen sich in Word anpassen oder durch eigene Dateien mit Platzhaltern ersetzen.
+- Probleme: Im Protokoll unten steht die Fehlermeldung. Diesen Text bitte kopieren und weitergeben.

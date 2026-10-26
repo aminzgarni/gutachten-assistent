@@ -1,0 +1,73 @@
+{
+  "honorar_pro_stunde": {
+    "M2": 98.0,
+    "M3": 131.0
+  },
+  "km_satz": 0.42,
+  "schreibgebuehr_pro_einheit": 1.5,
+  "anschlaege_pro_einheit": 1000,
+  "standard_positionen": [
+    [
+      "Aktenstudium und Vorbereitung",
+      "Sichtung des Beschlusses, der Vorbefunde und der Antragsunterlagen"
+    ],
+    [
+      "Fahrt ({untersuchungsdatum}): Hin und Rückfahrt",
+      "Fahrt zum Untersuchungsort und zurück"
+    ],
+    [
+      "Ergänzende Kommunikation",
+      "Telefonische Terminvereinbarung und Nachrichtenkontakte"
+    ],
+    [
+      "Persönliche Exploration ({untersuchungsdatum})",
+      "Psychiatrische Untersuchung des Betroffenen"
+    ],
+    [
+      "Abfassung des schriftlichen Gutachtens",
+      "Auswertung, Beurteilung, schriftliche Gutachtenerstattung"
+    ],
+    [
+      "Formatierung",
+      "Korrektur, Formatierung und Versand des Gutachtens"
+    ]
+  ],
+  "ki_max_zeichen": 60000,
+  "ki_tools": [
+    {"name": "Claude", "url": "https://claude.ai/new", "aktiv": true},
+    {"name": "ChatGPT", "url": "https://chatgpt.com/", "aktiv": true},
+    {"name": "Gemini", "url": "https://gemini.google.com/app", "aktiv": true},
+    {"name": "Perplexity", "url": "https://www.perplexity.ai/", "aktiv": true},
+    {"name": "Le Chat (Mistral)", "url": "https://chat.mistral.ai/chat", "aktiv": false}
+  ],
+  "ki_prompt_zusatz": "",
+  "design": "system",
+  "gutachten_module_IV": [
+    "Psychiatrische und entwicklungsbezogene Beurteilung",
+    "Fähigkeit zur Besorgung der Angelegenheiten",
+    "Freier Wille (§ 1814 Abs. 2 BGB)",
+    "Erforderlichkeit und andere Hilfen (§ 1814 Abs. 3 BGB)",
+    "Aufgabenkreise",
+    "Einwilligungsvorbehalt (§ 1825 BGB)",
+    "Geschäftsfähigkeit",
+    "Dauer und Prognose",
+    "Verfahrensrechtliche Fragen"
+  ],
+  "whisper_modell": "large-v3-turbo",
+  "whisper_prompt": "Psychiatrische Exploration im Rahmen eines Betreuungsverfahrens. Fachbegriffe: Betreuung, Betreuer, Betroffener, Gutachten, Depression, Schizophrenie, Psychose, Suizidalität, Medikation, Neuroleptika, Antidepressiva, Einwilligungsvorbehalt, Geschäftsfähigkeit, Amtsgericht.",
+  "gutachter_name": "",
+  "gutachter_titel": "",
+  "strasse": "",
+  "plz_ort": "",
+  "ort": "",
+  "fachgebiet": "Psychiatrie",
+  "gutachten_titel": "Psychiatrisches Gutachten",
+  "kontoinhaber": "",
+  "iban": "",
+  "bic": "",
+  "bank": "",
+  "abteilung_standard": "Abteilung für Betreuungssachen",
+  "auftrag_text_vorlage": "Psychiatrisches Gutachten gemäß Beschluss vom {beschluss_datum}",
+  "honorar_text_vorlage": "Das psychiatrische Gutachten betrifft die medizinischen Voraussetzungen einer Betreuerbestellung nach § 1814 Abs. 5 BGB.",
+  "gutachten_auftrag_vorlage": "Beschluss des AG {gericht} zu den Voraussetzungen einer Betreuerbestellung nach § 1814 Abs. 5 BGB"
+}
